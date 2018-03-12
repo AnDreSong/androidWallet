@@ -1,34 +1,19 @@
 package android.wallet.android.walletapplication;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresPermission;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.wallet.android.walletapplication.Coom.JsonUtil;
 import android.wallet.android.walletapplication.Coom.ReadUtil;
-import android.wallet.android.walletapplication.Coom.TimeThread;
 import android.wallet.android.walletapplication.Data.DateUtil;
 import android.wallet.android.walletapplication.Data.WalletData;
 import android.wallet.android.walletapplication.Data.WalletDataList;
 import android.widget.CalendarView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -118,30 +103,12 @@ public class MainActivity extends AppCompatActivity {
     WalletDataList dataList=null;
     private void InitControls()
     {
-          //txttime=findViewById(R.id.txt_Time);
-          //txt_total=findViewById(R.id.txt_total);
-          //txt_random=findViewById(R.id.txt_now);
           calendarView=findViewById(R.id.calendarView_main);
           txtShownow=findViewById(R.id.txt_showRandom);
           calendarView.setMaxDate(c.getTimeInMillis());
-          Calendar cbegin=Calendar.getInstance();
-          cbegin.set(c.get(Calendar.YEAR),0,1);
-          calendarView.setMinDate(cbegin.getTimeInMillis());
-          //calendarView.setMaxDate(c.getTimeInMillis());
-
-          /*handlerMsg=new Handler()
-          {
-              @Override
-              public void handleMessage(Message msg) {
-                 if (msg.obj!=null)
-                 {
-                     txttime.setText(msg.obj.toString());
-                 }
-
-              }
-          };*/
-
-
+          Calendar cherin=Calendar.getInstance();
+          cherin.set(c.get(Calendar.YEAR),0,1);
+          calendarView.setMinDate(cherin.getTimeInMillis());
     }
 
     private void InitHistory() {
@@ -187,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             dataList.setDataList(new ArrayList<WalletData>());
             dataNow=new WalletData();
             dataNow.setTodayTime(date);
-            dataNow.setTodayRandomMoney(GetRandomdata());
+            dataNow.setTodayRandomMoney(GetRandom());
             ArrayList<WalletData> dataTemp=dataList.getDataList();
             dataTemp.add(dataNow);
             dataList.setDataList(dataTemp);
@@ -210,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             while (dataNow==null)
             {
 
-                int randomTemp=GetRandomdata();
+                int randomTemp= GetRandom();
                 boolean isFinddata=false;
                 for (WalletData dattemp:dataList.getDataList())
                 {
@@ -235,8 +202,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        //Toast.makeText(MainActivity.this,String.valueOf(dataNow.getTodayRandomMoney()),Toast.LENGTH_LONG).show();
-        //txtShownow.setText(String.valueOf(dataNow.getTodayRandomMoney()));
     }
 
     private void  Create()
@@ -260,7 +225,6 @@ public class MainActivity extends AppCompatActivity {
         Calendar c = Calendar.getInstance();
         c.setTime(dt);
         c.add(Calendar.DATE,1);// 今天+1天
-
         Date tomorrow = c.getTime();
         return tomorrow;
     }
@@ -275,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
             dataList.setDataList(new ArrayList<WalletData>());
             dataNow=new WalletData();
             dataNow.setTodayTime(dt);
-            dataNow.setTodayRandomMoney(GetRandomdata());
+            dataNow.setTodayRandomMoney(GetRandom());
             ArrayList<WalletData> dataTemp=dataList.getDataList();
             dataTemp.add(dataNow);
             dataList.setDataList(dataTemp);
@@ -284,13 +248,13 @@ public class MainActivity extends AppCompatActivity {
         }
         else
         {
-            for (WalletData dattemp:dataList.getDataList())
+            for (WalletData dafter:dataList.getDataList())
             {
-                String source=formatter.format(dattemp.getTodayTime());
+                String source=formatter.format(dafter.getTodayTime());
                 String resource=formatter.format(dt);
                 if (source.equals(resource))
                 {
-                    dataNow=dattemp;
+                    dataNow=dafter;
                     break;
 
                 }
@@ -298,18 +262,18 @@ public class MainActivity extends AppCompatActivity {
             while (dataNow==null)
             {
 
-                int randomTemp=GetRandomdata();
-                boolean isFinddata=false;
-                for (WalletData dattemp:dataList.getDataList())
+                int randomTemp= GetRandom();
+                boolean isFindlay=false;
+                for (WalletData dafter:dataList.getDataList())
                 {
-                    if (dattemp.getTodayRandomMoney()==randomTemp)
+                    if (dafter.getTodayRandomMoney()==randomTemp)
                     {
-                        isFinddata=true;
+                        isFindlay=true;
                         break;
                     }
 
                 }
-                if (!isFinddata)
+                if (!isFindlay)
                 {
 
                     dataNow=new WalletData();
@@ -318,8 +282,8 @@ public class MainActivity extends AppCompatActivity {
                     ArrayList<WalletData> dataListTemp=dataList.getDataList();
                     dataListTemp.add(dataNow);
                     dataList.setDataList(dataListTemp);
-                    String waleetjson=JsonUtil.objectToString(dataList);
-                    getRead().Save(fileName,waleetjson);
+                    String wallets=JsonUtil.objectToString(dataList);
+                    getRead().Save(fileName,wallets);
                 }
             }
         }
@@ -334,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
         }
         return read;
     }
-    private int GetRandomdata()
+    private int GetRandom()
     {
         Random random=new Random();
         int data=0;
