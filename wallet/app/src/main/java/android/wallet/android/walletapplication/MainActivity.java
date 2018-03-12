@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.wallet.android.walletapplication.Coom.JsonUtil;
 import android.wallet.android.walletapplication.Coom.ReadUtil;
 import android.wallet.android.walletapplication.Coom.TimeThread;
+import android.wallet.android.walletapplication.Data.DateUtil;
 import android.wallet.android.walletapplication.Data.WalletData;
 import android.wallet.android.walletapplication.Data.WalletDataList;
 import android.widget.CalendarView;
@@ -76,9 +77,9 @@ public class MainActivity extends AppCompatActivity {
                         {
 
                             isFinddata=true;
-                            String shwoInfo=year+"年"+(month+1)+"月"+dayOfMonth+"日:"+data.getTodayRandomMoney()+"\r\n";
-
-                            shwoInfo+=dataList.getDataList().size()+"天"+"\r\n"+"合计"+dataList.getTotal()+"元";
+                            DateUtil util=new DateUtil(data.getTodayTime());
+                            String shwoInfo ="第"+data.getDayInyear()+"天"+util.getYear() + "年" + (util.getMonth()) + "月" + util.getDay() + "日:"+ data.getTodayRandomMoney() + "元"+"\r\n";
+                            shwoInfo += "共"+dataList.getDataList().size() + "天" + "\r\n" + "合计" + dataList.getTotal() + "元";
                             txtShownow.setText(shwoInfo);
                         }
                     }
@@ -143,19 +144,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void InitHistory()
-    {
-       String dataListStr= getRead().ReadHistory(fileName);
-       if (dataListStr.length()>0)
-       {
-           dataList=(WalletDataList) JsonUtil.stringToObject(dataListStr,WalletDataList.class);
-           if (dataList!=null)
-           {
-               String shwoInfo=dataList.getDataList().size()+"天"+"\r\n"+"合计"+dataList.getTotal()+"元";
-               txtShownow.setText(shwoInfo);}
+    private void InitHistory() {
+        String dataListStr = getRead().ReadHistory(fileName);
+        if (dataListStr.length() > 0) {
+            dataList = (WalletDataList) JsonUtil.stringToObject(dataListStr, WalletDataList.class);
+            if (dataList != null) {
+                DateUtil dateUtil = new DateUtil(date);
+                WalletData datnow = null;
+                for (WalletData data : dataList.getDataList()) {
+                    DateUtil temputil = new DateUtil(data.getTodayTime());
+                    if (dateUtil.getDay() == temputil.getDay() && dateUtil.getMonth() == temputil.getMonth() && dateUtil.getYear() == temputil.getYear())
+                    {
+                        datnow = data;
+                    }
 
-           }
-       }
+                }
+                if (datnow!=null)
+                {
+                    String shwoInfo ="第"+datnow.getDayInyear()+"天"+dateUtil.getYear() + "年" + (dateUtil.getMonth()) + "月" + dateUtil.getDay() + "日:"+ datnow.getTodayRandomMoney() + "元"+"\r\n";
+                    shwoInfo += "共"+dataList.getDataList().size() + "天" + "\r\n" + "合计" + dataList.getTotal() + "元";
+                    txtShownow.setText(shwoInfo);
+
+                }
+
+
+            }
+        }
+    }
 
 
     private void GetRandomInfo()
@@ -209,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!isFinddata)
                 {
 
-                     dataNow=new WalletData();
+                    dataNow=new WalletData();
                     dataNow.setTodayTime(date);
                     dataNow.setTodayRandomMoney(randomTemp);
                     ArrayList<WalletData> dataListTemp=dataList.getDataList();
@@ -220,8 +235,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        Toast.makeText(MainActivity.this,String.valueOf(dataNow.getTodayRandomMoney()),Toast.LENGTH_LONG).show();
-        txtShownow.setText(String.valueOf(dataNow.getTodayRandomMoney()));
+        //Toast.makeText(MainActivity.this,String.valueOf(dataNow.getTodayRandomMoney()),Toast.LENGTH_LONG).show();
+        //txtShownow.setText(String.valueOf(dataNow.getTodayRandomMoney()));
     }
 
     private void  Create()
